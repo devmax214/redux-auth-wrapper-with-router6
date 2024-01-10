@@ -1,8 +1,10 @@
+import * as React from 'react'
 import { connect } from 'react-redux'
 import invariant from 'invariant'
 
 import authWrapper from '../authWrapper'
 import Redirect from '../redirect'
+import { useNavigate } from 'react-router'
 
 const connectedDefaults = {
   authenticatingSelector: () => false,
@@ -39,15 +41,15 @@ export default ({ locationHelperBuilder, getRouterRedirect }) => {
       invariant(false, 'allowRedirectBack must be either a boolean or a function')
     }
 
-    const redirect = (replace) => (props, path) =>
-      replace(createRedirectLoc(allowRedirectBackFn(props, path))(props, path))
+    const ConnectedFailureComponent = (ownProps) => {
+      const navigate = useNavigate()
+      const redirect = (props, path) => { 
+        navigate(createRedirectLoc(allowRedirectBackFn(props, path))(props, path))
+      }
+      return <FailureComponent {...ownProps} redirect={redirect} />
+    }
 
-    const ConnectedFailureComponent = connect((state, ownProps) => ({
-      redirect: redirect(getRouterRedirect(ownProps))
-    }))(FailureComponent)
-
-    return (DecoratedComponent) =>
-      connect((state, ownProps) => ({
+    return (DecoratedComponent) => connect((state, ownProps) => ({
         redirectPath: redirectPathSelector(state, ownProps),
         isAuthenticated: authenticatedSelector(state, ownProps),
         isAuthenticating: authenticatingSelector(state, ownProps)

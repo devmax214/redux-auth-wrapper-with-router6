@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import hoistStatics from 'hoist-non-react-statics'
+import { useLocation, useParams } from 'react-router'
 
 const defaults = {
   AuthenticatingComponent: () => null, // dont render anything while authenticating
@@ -18,29 +19,27 @@ export default (args) => {
   function wrapComponent(DecoratedComponent) {
     const displayName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
 
-    class UserAuthWrapper extends Component {
-
-      static displayName = `${wrapperDisplayName}(${displayName})`;
-
-      static propTypes = {
-        isAuthenticated: PropTypes.bool,
-        isAuthenticating: PropTypes.bool
-      };
-
-      static defaultProps = {
-        isAuthenticating: false
+    const UserAuthWrapper = (props) => {
+      const location = useLocation()
+      const params = useParams()
+      const newProps = {...props, location, params}
+      const { isAuthenticated, isAuthenticating } = props
+      if (isAuthenticated) {
+        return <DecoratedComponent {...newProps} />
+      } else if(isAuthenticating) {
+        return <AuthenticatingComponent {...newProps} />
+      } else {
+        return <FailureComponent {...newProps} />
       }
+    }
 
-      render() {
-        const { isAuthenticated, isAuthenticating } = this.props
-        if (isAuthenticated) {
-          return <DecoratedComponent {...this.props} />
-        } else if(isAuthenticating) {
-          return <AuthenticatingComponent {...this.props} />
-        } else {
-          return <FailureComponent {...this.props} />
-        }
-      }
+    UserAuthWrapper.displayName = `${wrapperDisplayName}(${displayName})`
+    UserAuthWrapper.propTypes = {
+      isAuthenticated: PropTypes.bool,
+      isAuthenticating: PropTypes.bool
+    }
+    UserAuthWrapper.defaultProps = {
+      isAuthenticating: false
     }
 
     return hoistStatics(UserAuthWrapper, DecoratedComponent)
