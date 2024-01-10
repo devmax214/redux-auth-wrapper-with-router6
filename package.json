@@ -10,7 +10,7 @@
     "dist": "cd lib && yarn publish",
     "dist:prepare": "yarn run build:clean && yarn run build && yarn run build:copyFiles",
     "lint": "eslint src test examples",
-    "test": "mocha --require babel-core/register --recursive --require test/init.js test/rrv6-test.js",
+    "test": "mocha --require babel-core/register --recursive --require test/init.js test/authWrapper-test.js",
     "test:cov": "babel-node --max-old-space-size=4076 $(yarn bin)/babel-istanbul cover $(yarn bin)/_mocha -- --require test/init.js test/authWrapper-test.js",
     "test:watch": "mocha --require babel-core/register --recursive --require test/init.js -w test/authWrapper-test.js",
     "docs:clean": "rimraf _book",

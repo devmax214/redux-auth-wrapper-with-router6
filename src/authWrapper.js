@@ -20,7 +20,8 @@ export default (args) => {
     const displayName = DecoratedComponent.displayName || DecoratedComponent.name || 'Component'
 
     const UserAuthWrapper = (props) => {
-      const location = useLocation()
+      let location = {}
+      try { location = useLocation() } catch(e) {}
       const params = useParams()
       const newProps = {...props, location, params}
       const { isAuthenticated, isAuthenticating } = props
